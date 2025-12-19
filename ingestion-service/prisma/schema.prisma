@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model InstallRegistry {
+  id          String   @id @default(uuid())
+  install_id  String   @unique
+  is_active   Boolean  @default(true) // Kill switch
+  created_at  DateTime @default(now())
+}
+
+// ARCHITECTURE NOTE (Phase 12):
+// This model currently couples 'Immutable Ingest Data' with 'Mutable Queue State' (status).
+// In Phase 13+, this should be split into `IngestEvent` (immutable) and `EngagementItem` (mutable).
+// This coupling is accepted for Phase 12 as a temporary simplification.
+model EngagementEvent {
+  id              String   @id @default(uuid()) // Internal ID
+  dedup_key       String   @unique // Hash(platform + video_id + comment_id)
+  platform        String
+  video_id        String
+  comment_id      String
+  content_text    String   // Raw captured text
+  metadata        String?  // Phase 17: JSON blob of raw event data (video info, etc.)
+  status          String   // NEW, SUGGESTED, DRAFTED, DONE, IGNORED
+  created_at      DateTime @default(now())
+  
+  sessions        SuggestionSession[]
+}
+
+model SuggestionSession {
+  id              String   @id @default(uuid())
+  event_id        String
+  event           EngagementEvent @relation(fields: [event_id], references: [id])
+  version         Int      @default(1)
+  input_snapshot  String   // JSON snapshot of context
+  suggestion_text String
+  brain_meta      String?  // JSON debug info from Brain
+  created_at      DateTime @default(now())
+  
+  feedback        FeedbackSignal?
+}
+
+model FeedbackSignal {
+  id              String   @id @default(uuid())
+  session_id      String   @unique
+  session         SuggestionSession @relation(fields: [session_id], references: [id])
+  action          String   // COPY, EDIT_COPY, IGNORE, DISMISS
+  final_text      String?  // If edited
+  edit_distance   Int?
+  time_to_action  Int?     // Milliseconds
+  created_at      DateTime @default(now())
+}

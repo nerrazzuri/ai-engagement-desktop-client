@@ -1,0 +1,47 @@
+{
+    "name": "NEUTRAL_PRAISE_SKIPS_RAG",
+    "input": {
+        "event_type": "DESKTOP_CAPTURE",
+        "platform": "youtube",
+        "session": {
+            "session_id": "123e4567-e89b-12d3-a456-426614174002",
+            "install_id": "test-tenant",
+            "account_hint": "test-account"
+        },
+        "page": {
+            "page_type": "VIDEO",
+            "url": "https://youtube.com/watch?v=def",
+            "timestamp": "2025-01-01T00:00:00Z"
+        },
+        "video": {
+            "video_id": "def",
+            "video_url": "https://youtube.com/watch?v=def",
+            "title": "Viral Video",
+            "author_id": "ch1",
+            "author_name": "Test Channel"
+        },
+        "comment": {
+            "comment_id": "c2",
+            "text": "Great video! I learnt a lot.",
+            "author_id": "u2",
+            "author_name": "Fan",
+            "like_count": 10,
+            "reply_count": 0
+        },
+        "context": {
+            "visible": true,
+            "position": "viewport",
+            "user_action": "manual_trigger"
+        },
+        "client_meta": {
+            "extension_version": "0.1",
+            "os": "windows",
+            "browser": "chrome"
+        }
+    },
+    "expect": {
+        "strategy": "ACKNOWLEDGE",
+        "rag_used": false,
+        "prompt_version": "v2.0"
+    }
+}

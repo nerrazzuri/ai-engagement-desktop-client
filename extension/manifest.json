@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "AI Engagement - Desktop Ingestion",
+    "version": "1.0.0",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage",
+        "tabs"
+    ],
+    "host_permissions": [
+        "https://www.youtube.com/*",
+        "http://localhost:3000/*"
+    ],
+    "background": {
+        "service_worker": "src/background.ts",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/*"
+            ],
+            "js": [
+                "src/content.ts"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "src/popup.html"
+    }
+}
