@@ -72,7 +72,7 @@ router.post('/events', async (req: Request, res: Response) => {
                 content_text: event.comment.text,
                 metadata: JSON.stringify(event), // Phase 17: Persist full raw event
                 status: 'NEW'
-            }
+            } as any
         });
 
         // 4. Return Success (No Suggestion yet - Client must call /suggestions)
@@ -153,7 +153,7 @@ router.post('/suggestions', async (req: Request, res: Response) => {
         // 3. Call Brain Gateway (Official Capability Path)
 
         // Phase 17B: Reconstruct Domain Event from Metadata & Use Adapter
-        const rawMeta = JSON.parse(event.metadata || '{}');
+        const rawMeta = JSON.parse((event as any).metadata || '{}');
 
         // Map to VideoEvent (Domain Object)
         // We use the persisted metadata to fill in context that isn't columns
