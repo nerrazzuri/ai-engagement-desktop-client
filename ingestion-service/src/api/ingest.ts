@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { DesktopCaptureEventSchema, EngagementEventSchema } from '../schemas/desktop_capture_event';
 import { v4 as uuidv4 } from 'uuid';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
