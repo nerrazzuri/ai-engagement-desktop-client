@@ -1,0 +1,22 @@
+[
+    {
+        "id": "sig_pro_this",
+        "signal": "this"
+    },
+    {
+        "id": "sig_pro_it",
+        "signal": "it"
+    },
+    {
+        "id": "sig_pro_that",
+        "signal": "that"
+    },
+    {
+        "id": "sig_pro_these",
+        "signal": "these"
+    },
+    {
+        "id": "sig_pro_those",
+        "signal": "those"
+    }
+]

@@ -1,0 +1,38 @@
+[
+    {
+        "id": "pi_from_q",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_source",
+        "language": "en",
+        "signal": "from?",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "pi_where_to_buy",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_source",
+        "language": "en",
+        "signal": "where to buy",
+        "weight": 40,
+        "is_active": true
+    },
+    {
+        "id": "pi_link_pls",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_link",
+        "language": "en",
+        "signal": "link please",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "pi_brand_q",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_brand",
+        "language": "en",
+        "signal": "what brand",
+        "weight": 30,
+        "is_active": true
+    }
+]

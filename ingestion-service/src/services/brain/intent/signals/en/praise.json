@@ -1,0 +1,26 @@
+[
+    {
+        "id": "sig_prais_nice",
+        "signal": "nice"
+    },
+    {
+        "id": "sig_prais_cool",
+        "signal": "cool"
+    },
+    {
+        "id": "sig_prais_love",
+        "signal": "love"
+    },
+    {
+        "id": "sig_prais_great",
+        "signal": "great"
+    },
+    {
+        "id": "sig_prais_amazing",
+        "signal": "amazing"
+    },
+    {
+        "id": "sig_prais_lol",
+        "signal": "lol"
+    }
+]

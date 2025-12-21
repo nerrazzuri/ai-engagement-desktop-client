@@ -1,0 +1,18 @@
+[
+    {
+        "id": "sig_reg_bought_another",
+        "signal": "bought another"
+    },
+    {
+        "id": "sig_reg_missed_out",
+        "signal": "missed out"
+    },
+    {
+        "id": "sig_reg_too_late",
+        "signal": "too late"
+    },
+    {
+        "id": "sig_reg_bought_something_else",
+        "signal": "bought something else"
+    }
+]

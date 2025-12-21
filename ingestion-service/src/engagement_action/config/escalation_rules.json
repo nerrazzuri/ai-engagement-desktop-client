@@ -1,0 +1,8 @@
+{
+    "always_escalate_stages": [
+        "REGRET"
+    ],
+    "escalate_critical_levels": [
+        "CRITICAL"
+    ]
+}

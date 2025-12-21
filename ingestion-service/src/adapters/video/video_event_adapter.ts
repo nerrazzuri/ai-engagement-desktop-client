@@ -16,8 +16,8 @@ export class VideoEventAdapter {
         // Log input for replayability (debug level - simulated)
         // console.debug('[Adapter] Ingesting VideoEvent:', event.video_id);
 
-        // Map query: Title > Description > Empty
-        const query = event.video_title || event.video_description || "";
+        // Map query: Text (Comment/Caption) > Title > Description > Empty
+        const query = event.text || event.video_title || event.video_description || "";
 
         // Define objects with satisfies for type safety without unsafe casts
         const videoContext = {

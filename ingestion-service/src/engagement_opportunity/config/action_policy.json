@@ -1,0 +1,37 @@
+{
+    "IGNORE": {
+        "AWARENESS": "IGNORE",
+        "CONSIDERATION": "IGNORE",
+        "VALIDATION": "IGNORE",
+        "DECISION": "IGNORE",
+        "REGRET": "IGNORE"
+    },
+    "LOW": {
+        "AWARENESS": "IGNORE",
+        "CONSIDERATION": "PUBLIC_REPLY",
+        "VALIDATION": "PUBLIC_REPLY",
+        "DECISION": "PUBLIC_REPLY",
+        "REGRET": "PUBLIC_REPLY"
+    },
+    "MEDIUM": {
+        "AWARENESS": "PUBLIC_REPLY",
+        "CONSIDERATION": "PUBLIC_REPLY",
+        "VALIDATION": "PUBLIC_REPLY",
+        "DECISION": "PUBLIC_REPLY",
+        "REGRET": "DM"
+    },
+    "HIGH": {
+        "AWARENESS": "PUBLIC_REPLY",
+        "CONSIDERATION": "PUBLIC_REPLY",
+        "VALIDATION": "DM",
+        "DECISION": "DM",
+        "REGRET": "ESCALATE"
+    },
+    "CRITICAL": {
+        "AWARENESS": "DM",
+        "CONSIDERATION": "DM",
+        "VALIDATION": "DM",
+        "DECISION": "DM",
+        "REGRET": "ESCALATE"
+    }
+}

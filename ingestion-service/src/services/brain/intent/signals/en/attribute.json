@@ -1,0 +1,46 @@
+[
+    {
+        "id": "sig_attr_color",
+        "signal": "color"
+    },
+    {
+        "id": "sig_attr_size",
+        "signal": "size"
+    },
+    {
+        "id": "sig_attr_shade",
+        "signal": "shade"
+    },
+    {
+        "id": "sig_attr_texture",
+        "signal": "texture"
+    },
+    {
+        "id": "sig_attr_fabric",
+        "signal": "fabric"
+    },
+    {
+        "id": "sig_attr_smaller",
+        "signal": "smaller"
+    },
+    {
+        "id": "sig_attr_larger",
+        "signal": "larger"
+    },
+    {
+        "id": "sig_attr_cheaper",
+        "signal": "cheaper"
+    },
+    {
+        "id": "sig_attr_brighter",
+        "signal": "brighter"
+    },
+    {
+        "id": "sig_attr_darker",
+        "signal": "darker"
+    },
+    {
+        "id": "sig_attr_lighter",
+        "signal": "lighter"
+    }
+]

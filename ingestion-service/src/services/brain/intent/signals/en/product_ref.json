@@ -1,0 +1,34 @@
+[
+    {
+        "id": "sig_prod_product",
+        "signal": "product"
+    },
+    {
+        "id": "sig_prod_item",
+        "signal": "item"
+    },
+    {
+        "id": "sig_prod_foundation",
+        "signal": "foundation"
+    },
+    {
+        "id": "sig_prod_eyeliner",
+        "signal": "eyeliner"
+    },
+    {
+        "id": "sig_prod_charger",
+        "signal": "charger"
+    },
+    {
+        "id": "sig_prod_sofa",
+        "signal": "sofa"
+    },
+    {
+        "id": "sig_prod_concealer",
+        "signal": "concealer"
+    },
+    {
+        "id": "sig_prod_lipstick",
+        "signal": "lipstick"
+    }
+]

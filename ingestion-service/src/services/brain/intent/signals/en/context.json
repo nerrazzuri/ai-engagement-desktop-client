@@ -1,0 +1,30 @@
+[
+    {
+        "id": "sig_ctx_anniversary",
+        "signal": "anniversary"
+    },
+    {
+        "id": "sig_ctx_birthday",
+        "signal": "birthday"
+    },
+    {
+        "id": "sig_ctx_gift",
+        "signal": "gift"
+    },
+    {
+        "id": "sig_ctx_wedding",
+        "signal": "wedding"
+    },
+    {
+        "id": "sig_ctx_special",
+        "signal": "special occasion"
+    },
+    {
+        "id": "sig_ctx_someone",
+        "signal": "for someone"
+    },
+    {
+        "id": "sig_ctx_present",
+        "signal": "present"
+    }
+]

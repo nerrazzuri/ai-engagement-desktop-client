@@ -31,7 +31,7 @@ export interface CapabilityRequest {
 }
 
 export interface CapabilityResponse {
-    kind: 'answer' | 'recommend' | 'error';
+    kind: 'answer' | 'recommend' | 'error' | 'ignore';
     payload: JsonValue;
     citations?: JsonValue[];
     confidence?: number;

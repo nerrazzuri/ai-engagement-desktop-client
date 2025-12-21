@@ -1,0 +1,38 @@
+[
+    {
+        "id": "lc_if_there_was",
+        "intent": "LATENT_PURCHASE",
+        "family": "condition_availability",
+        "language": "en",
+        "signal": "if there was",
+        "weight": 50,
+        "is_active": true
+    },
+    {
+        "id": "lc_smaller_size",
+        "intent": "LATENT_PURCHASE",
+        "family": "condition_variant",
+        "language": "en",
+        "signal": "smaller size",
+        "weight": 50,
+        "is_active": true
+    },
+    {
+        "id": "lc_wish_it_had",
+        "intent": "LATENT_PURCHASE",
+        "family": "condition_feature",
+        "language": "en",
+        "signal": "wish it had",
+        "weight": 50,
+        "is_active": true
+    },
+    {
+        "id": "lc_would_buy_if",
+        "intent": "LATENT_PURCHASE",
+        "family": "condition_explicit",
+        "language": "en",
+        "signal": "would buy if",
+        "weight": 60,
+        "is_active": true
+    }
+]

@@ -12,16 +12,48 @@ export class OpenAIProvider implements LLMProvider {
     }
 
     async generateCompletion(request: LLMCompletionRequest): Promise<LLMCompletionResponse> {
-        // TODO: Implement actual OpenAI call
-        // For Phase 14 POC without keys, we can throw or return mock
-
-        if (!process.env.OPENAI_API_KEY) {
+        if (!this.apiKey) {
             throw new Error("OpenAI API Key not configured");
         }
 
-        // Implementation would go here...
-        // const completion = await openai.chat.completions.create({...})
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini", // Use cost-effective model
+                    messages: [
+                        { role: "system", content: "You are a helpful assistant. Respond in JSON." },
+                        { role: "user", content: request.prompt }
+                    ],
+                    temperature: request.temperature,
+                    max_tokens: request.max_tokens,
+                    response_format: { type: "json_object" }
+                })
+            });
 
-        throw new Error("OpenAI Provider not yet fully implemented");
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`OpenAI API Error: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json() as any;
+            const content = data.choices[0].message.content;
+
+            return {
+                text: content,
+                raw: data,
+                usage: {
+                    prompt_tokens: data.usage.prompt_tokens,
+                    completion_tokens: data.usage.completion_tokens
+                }
+            };
+        } catch (err: any) {
+            console.error('[OpenAIProvider] Call Failed:', err);
+            throw new Error(`OpenAI Provider Failed: ${err.message}`);
+        }
     }
 }

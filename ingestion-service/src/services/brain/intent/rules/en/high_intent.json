@@ -1,0 +1,38 @@
+[
+    {
+        "id": "high_price_1",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_price",
+        "language": "en",
+        "signal": "price",
+        "weight": 20,
+        "is_active": true
+    },
+    {
+        "id": "high_where_buy",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_location",
+        "language": "en",
+        "signal": "where to buy",
+        "weight": 25,
+        "is_active": true
+    },
+    {
+        "id": "high_link",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "inquiry_link",
+        "language": "en",
+        "signal": "link",
+        "weight": 15,
+        "is_active": true
+    },
+    {
+        "id": "high_black_color",
+        "intent": "HIGH_INTENT_PURCHASE",
+        "family": "specific_request",
+        "language": "en",
+        "signal": "come in black",
+        "weight": 20,
+        "is_active": true
+    }
+]

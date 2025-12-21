@@ -1,0 +1,22 @@
+[
+    {
+        "id": "sig_src_from",
+        "signal": "from"
+    },
+    {
+        "id": "sig_src_buy",
+        "signal": "buy"
+    },
+    {
+        "id": "sig_src_get",
+        "signal": "get"
+    },
+    {
+        "id": "sig_src_link",
+        "signal": "link"
+    },
+    {
+        "id": "sig_src_brand",
+        "signal": "brand"
+    }
+]

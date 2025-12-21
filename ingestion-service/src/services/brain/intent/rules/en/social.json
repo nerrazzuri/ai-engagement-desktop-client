@@ -1,0 +1,38 @@
+[
+    {
+        "id": "soc_love_it_1",
+        "intent": "SOCIAL",
+        "family": "praise",
+        "language": "en",
+        "signal": "love it",
+        "weight": 10,
+        "is_active": true
+    },
+    {
+        "id": "soc_cool_1",
+        "intent": "SOCIAL",
+        "family": "praise",
+        "language": "en",
+        "signal": "cool",
+        "weight": 5,
+        "is_active": true
+    },
+    {
+        "id": "soc_great_vid",
+        "intent": "SOCIAL",
+        "family": "praise",
+        "language": "en",
+        "signal": "great video",
+        "weight": 8,
+        "is_active": true
+    },
+    {
+        "id": "soc_first",
+        "intent": "NOISE",
+        "family": "spam",
+        "language": "en",
+        "signal": "first",
+        "weight": 5,
+        "is_active": true
+    }
+]

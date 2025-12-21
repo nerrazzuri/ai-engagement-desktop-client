@@ -1,0 +1,26 @@
+[
+    {
+        "id": "sig_prob_smudges",
+        "signal": "smudges"
+    },
+    {
+        "id": "sig_prob_broke",
+        "signal": "broke"
+    },
+    {
+        "id": "sig_prob_rashes",
+        "signal": "rashes"
+    },
+    {
+        "id": "sig_prob_overheating",
+        "signal": "overheating"
+    },
+    {
+        "id": "sig_prob_doesnt_work",
+        "signal": "doesn't work"
+    },
+    {
+        "id": "sig_prob_broken",
+        "signal": "broken"
+    }
+]

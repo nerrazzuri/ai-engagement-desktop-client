@@ -1,0 +1,5 @@
+{
+    "window_minutes": 15,
+    "max_group_size": 10,
+    "decay_factor": 0.9
+}

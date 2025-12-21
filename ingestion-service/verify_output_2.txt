@@ -1,0 +1,22 @@
+
+--- VERIFYING PHASE 25 (Automation Eligibility) ---
+[Setup] Workspace: 95f1ff51-77e1-4303-97a2-0a00e7559da7, Plan: FREE, OptIn: false
+
+[Test 1] Default Block
+Result: {"allowed":false,"reasons":["Plan 'Free Tier' does not support automation.","Automation is not enabled in Owner Settings.","Insufficient history: 0/20 approved suggestions."],"constraints":{"max_replies_per_day":5,"allowed_time_window":"09:00-18:00"},"checked_at":"2025-12-21T07:43:09.346Z"}
+
+[Test 2] Plan Gate (Business Plan, OptIn False)
+Result: {"allowed":false,"reasons":["Automation is not enabled in Owner Settings.","Insufficient history: 0/20 approved suggestions."],"constraints":{"max_replies_per_day":5,"allowed_time_window":"09:00-18:00"},"checked_at":"2025-12-21T07:43:09.354Z"}
+
+[Test 3] Context Gate (OptIn True, Bad Context)
+Result: {"allowed":false,"reasons":["Unsafe Context: COMPETITOR_CONTENT/OWNER. Only OWNED_CONTENT/OWNER is allowed.","Insufficient history: 0/20 approved suggestions."],"constraints":{"max_replies_per_day":5,"allowed_time_window":"09:00-18:00"},"checked_at":"2025-12-21T07:43:09.360Z"}
+
+[Test 4] Trust Gate (Good Context, No History)
+Result: {"allowed":false,"reasons":["Insufficient history: 0/20 approved suggestions."],"constraints":{"max_replies_per_day":5,"allowed_time_window":"09:00-18:00"},"checked_at":"2025-12-21T07:43:09.364Z"}
+
+[Test 5] Success Case (Seeding History...)
+Result: {"allowed":true,"reasons":[],"constraints":{"max_replies_per_day":5,"allowed_time_window":"09:00-18:00"},"checked_at":"2025-12-21T07:43:09.390Z"}
+
+[Test 6] Persistence Check
+
+SUCCESS: Phase 25 Verified.

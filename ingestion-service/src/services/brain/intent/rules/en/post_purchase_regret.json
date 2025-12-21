@@ -1,0 +1,29 @@
+[
+    {
+        "id": "ppr_bought_else",
+        "intent": "POST_PURCHASE_REGRET",
+        "family": "regret_competitor",
+        "language": "en",
+        "signal": "bought something else",
+        "weight": 80,
+        "is_active": true
+    },
+    {
+        "id": "ppr_missed_out",
+        "intent": "POST_PURCHASE_REGRET",
+        "family": "regret_timing",
+        "language": "en",
+        "signal": "saw this earlier",
+        "weight": 80,
+        "is_active": true
+    },
+    {
+        "id": "ppr_already_got",
+        "intent": "POST_PURCHASE_REGRET",
+        "family": "regret_purchase",
+        "language": "en",
+        "signal": "already got",
+        "weight": 80,
+        "is_active": true
+    }
+]

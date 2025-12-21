@@ -1,0 +1,38 @@
+[
+    {
+        "id": "sig_eval_good_fit",
+        "signal": "good fit"
+    },
+    {
+        "id": "sig_eval_perfect",
+        "signal": "perfect"
+    },
+    {
+        "id": "sig_eval_good_choice",
+        "signal": "good choice"
+    },
+    {
+        "id": "sig_eval_looks_good",
+        "signal": "looks good"
+    },
+    {
+        "id": "sig_eval_suit_me",
+        "signal": "suit me"
+    },
+    {
+        "id": "sig_eval_suits",
+        "signal": "suits"
+    },
+    {
+        "id": "sig_eval_fits",
+        "signal": "fits"
+    },
+    {
+        "id": "sig_eval_suitable",
+        "signal": "suitable"
+    },
+    {
+        "id": "sig_eval_appropriate",
+        "signal": "appropriate"
+    }
+]

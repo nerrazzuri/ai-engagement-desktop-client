@@ -1,0 +1,10 @@
+{
+    "promote_above": 80,
+    "suppress_below": 50,
+    "always_promote_stages": [
+        "REGRET"
+    ],
+    "always_suppress_levels": [
+        "IGNORE"
+    ]
+}

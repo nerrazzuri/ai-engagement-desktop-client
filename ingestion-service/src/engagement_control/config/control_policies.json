@@ -1,0 +1,14 @@
+{
+    "auto_approve_enabled": false,
+    "roles": {
+        "admin": [
+            "APPROVE",
+            "REJECT",
+            "EDIT"
+        ],
+        "moderator": [
+            "APPROVE",
+            "REJECT"
+        ]
+    }
+}

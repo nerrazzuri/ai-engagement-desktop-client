@@ -1,0 +1,7 @@
+{
+    "base_weight_urgency": 1.0,
+    "weight_frequency": 5.0,
+    "weight_escalation": 20.0,
+    "weight_repetition": 10.0,
+    "penalty_spam": -50.0
+}

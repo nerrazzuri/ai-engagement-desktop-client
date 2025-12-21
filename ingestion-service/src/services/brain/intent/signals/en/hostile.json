@@ -1,0 +1,18 @@
+[
+    {
+        "id": "sig_hos_fake",
+        "signal": "fake"
+    },
+    {
+        "id": "sig_hos_scam",
+        "signal": "scam"
+    },
+    {
+        "id": "sig_hos_spam",
+        "signal": "spam"
+    },
+    {
+        "id": "sig_hos_trash",
+        "signal": "trash"
+    }
+]

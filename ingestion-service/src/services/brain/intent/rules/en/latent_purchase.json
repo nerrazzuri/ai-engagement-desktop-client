@@ -1,0 +1,38 @@
+[
+    {
+        "id": "lat_wish_1",
+        "intent": "LATENT_PURCHASE",
+        "family": "desire",
+        "language": "en",
+        "signal": "wish",
+        "weight": 10,
+        "is_active": true
+    },
+    {
+        "id": "lat_prefer_1",
+        "intent": "LATENT_PURCHASE",
+        "family": "preference",
+        "language": "en",
+        "signal": "prefer",
+        "weight": 10,
+        "is_active": true
+    },
+    {
+        "id": "lat_too_dark",
+        "intent": "LATENT_PURCHASE",
+        "family": "critique_feature",
+        "language": "en",
+        "signal": "too dark",
+        "weight": 15,
+        "is_active": true
+    },
+    {
+        "id": "lat_too_expensive",
+        "intent": "LATENT_PURCHASE",
+        "family": "critique_price",
+        "language": "en",
+        "signal": "too expensive",
+        "weight": 15,
+        "is_active": true
+    }
+]

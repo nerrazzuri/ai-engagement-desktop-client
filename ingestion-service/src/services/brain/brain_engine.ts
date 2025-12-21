@@ -1,8 +1,11 @@
 
 import { createHash } from 'crypto';
-import { Strategy, StrategyType, BrainInput, BrainResponse, HistoricalSignals } from './types';
+import { Strategy, StrategyType, BrainInput, BrainResponse, HistoricalSignals, ContextType, SpeakerRole, TemplateCategory } from './types';
 import { llmProvider, ragClient, resultCache, circuitBreaker } from './runtime/context';
 import { PromptVersion, renderPrompt } from '../llm/prompts';
+import { ContextClassifier } from './context/context_classifier';
+import { RoleResolver } from './context/role_resolver';
+import { SafetyGate } from './context/safety_gate';
 
 // ==========================================
 // Phase 17: Brain Engine (Pure Intelligence)
@@ -109,16 +112,83 @@ export const BrainEngine = {
         const startTime = Date.now();
 
         // 1. Ranking (Phase 13 Heuristic as 'Fast Path' / 'Candidate Generator')
-        const rawRanking = StrategyRanker.rank(input);
+        let rawRanking: Strategy[] = [];
+        let topStrategy: Strategy;
+
+        // Phase 17C: Engagement Intent Overrides
+        if (input.intent_context?.forced_strategy) {
+            topStrategy = {
+                type: input.intent_context.forced_strategy,
+                confidence: 1.0,
+                rationale: `Forced by Intent: ${input.intent_context.intent}`
+            };
+            rawRanking = [topStrategy];
+        } else {
+            rawRanking = StrategyRanker.rank(input);
+        }
+
         const adjustedRanking = HeuristicScorer.adjust(rawRanking, input.history);
-        const topStrategy = adjustedRanking.sort((a, b) => b.confidence - a.confidence)[0]; // Primary candidate
+        if (!topStrategy!) { // If not forced, pick from ranking
+            topStrategy = adjustedRanking.sort((a, b) => b.confidence - a.confidence)[0];
+        }
+
+        // ==========================================
+        // Phase 23: Context & Safety Layer
+        // ==========================================
+
+        // 1. Classify Context
+        const contextType = ContextClassifier.classify(input);
+
+        // 2. Resolve Role
+        // Mock default settings if unavailable (Phase 20 compat)
+        const effectiveSettings: any = input.ownerSettings || { aggressiveness: 'CONSERVATIVE' };
+
+        // Construct IntentDecision for Resolver (reusing logic or mocking for now if intent_context missing)
+        const intentDecision: any = {
+            intent: input.intent_context?.intent || 'UNKNOWN',
+            strength: input.intent_context?.score && input.intent_context.score > 0.8 ? 'HIGH' : 'LOW', // Simple map
+        };
+
+        const speakerRole = RoleResolver.resolve(contextType, intentDecision, effectiveSettings, topStrategy.confidence);
+
+        // 3. Determine Template Category (Heuristic)
+        // Default mapping based on Role
+        let templateCategory = TemplateCategory.NEUTRAL_ADVICE;
+        if (speakerRole === 'OWNER') templateCategory = TemplateCategory.OWNER_PROMOTIONAL; // Default for valid owners
+        else if (speakerRole === 'ALTERNATIVE_PROVIDER') templateCategory = TemplateCategory.ALTERNATIVE_MENTION;
+        else if (input.tenant.tone === 'PROFESSIONAL') templateCategory = TemplateCategory.NEUTRAL_ADVICE;
+        else templateCategory = TemplateCategory.EXPERIENCE_BASED;
+
+        // 4. Safety Gate
+        const gateResult = SafetyGate.evaluate(contextType, speakerRole, templateCategory);
+
+        if (!gateResult.allowed) {
+            console.warn(`[Brain] Safety Gate Blocked: ${gateResult.violation}`);
+            // Fallback to SILENT_CAPTURE or OBSERVATION
+            return {
+                text: "",
+                strategy: 'SILENT_CAPTURE',
+                confidence: 0,
+                explanation: `Safety Block: ${gateResult.violation}`,
+                decision_trace: {
+                    context: {
+                        context_type: contextType,
+                        speaker_role: speakerRole,
+                        template_category: templateCategory,
+                        rationale: gateResult.violation || 'Blocked'
+                    }
+                },
+                version: '3.2-safety-gate',
+                cache_hit: false
+            };
+        }
 
         // 2. Hybrid Pipeline Decision
         // Check Circuit Breaker
         const now = Date.now();
         if (circuitBreaker.failureCount >= circuitBreaker.FAILURE_THRESHOLD && (now - circuitBreaker.lastFailureTime) < circuitBreaker.RESET_TIMEOUT) {
             console.warn('[Brain] Circuit Open - Fallback to Heuristic');
-            return this.fallbackHeuristic(topStrategy, input, rawRanking, 'circuit_open', { used: false, reason: 'circuit_open' });
+            return this.fallbackHeuristic(topStrategy, input, rawRanking, 'circuit_open', { used: false, reason: 'circuit_open' }, { contextType, speakerRole, templateCategory });
         }
 
         let ragMeta = { used: false, reason: 'skipped_strategy' };
@@ -232,7 +302,13 @@ export const BrainEngine = {
                     ranking_snapshot: rawRanking.map(s => s.type),
                     latency_ms: latency,
                     tokens: llmResponse.usage,
-                    rag_meta: ragMeta
+                    rag_meta: ragMeta,
+                    context: {
+                        context_type: contextType,
+                        speaker_role: speakerRole,
+                        template_category: templateCategory,
+                        rationale: 'Safe Generation'
+                    }
                 },
                 model: `${llmProvider.id}-hybrid`,
                 version: '3.1-rag', // Bump version
@@ -247,14 +323,26 @@ export const BrainEngine = {
             return response;
 
         } catch (err) {
-            console.error('[Brain] LLM Failure Details:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
-            circuitBreaker.failureCount++;
-            circuitBreaker.lastFailureTime = Date.now();
-            return this.fallbackHeuristic(topStrategy, input, rawRanking, `fallback_error: ${(err as any).message}`, ragMeta);
+            const errorMessage = (err as any).message || 'Unknown Error';
+
+            // Check for configuration/implementation errors that shouldn't trip the circuit breaker
+            const isConfigError = errorMessage.includes('not yet fully implemented') ||
+                errorMessage.includes('API Key not configured');
+
+            if (!isConfigError) {
+                console.error('[Brain] LLM Failure Details:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+                circuitBreaker.failureCount++;
+                circuitBreaker.lastFailureTime = Date.now();
+            } else {
+                console.warn(`[Brain] LLM Skipped: ${errorMessage}`);
+            }
+
+            const cleanReason = isConfigError ? 'LLM_OFFLINE' : `fallback_error: ${errorMessage}`;
+            return this.fallbackHeuristic(topStrategy, input, rawRanking, cleanReason, ragMeta, { contextType, speakerRole, templateCategory });
         }
     },
 
-    fallbackHeuristic(strategy: Strategy, input: BrainInput, ranking: Strategy[], reason: string, ragMeta: any = {}): BrainResponse {
+    fallbackHeuristic(strategy: Strategy, input: BrainInput, ranking: Strategy[], reason: string, ragMeta: any = {}, contextData?: any): BrainResponse {
         const text = PromptComposer.compose(strategy, input);
         return {
             text,
@@ -264,7 +352,13 @@ export const BrainEngine = {
             decision_trace: {
                 fallback_reason: reason,
                 ranking: ranking.map(s => s.type),
-                rag_meta: ragMeta
+                rag_meta: ragMeta,
+                context: contextData ? {
+                    context_type: contextData.contextType,
+                    speaker_role: contextData.speakerRole,
+                    template_category: contextData.templateCategory,
+                    rationale: 'Fallback Preserved'
+                } : undefined
             },
             model: 'heuristic-only-fallback',
             version: '2.0-fallback',

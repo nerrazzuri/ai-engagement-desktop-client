@@ -1,0 +1,33 @@
+{
+    "youtube": {
+        "allowed_actions": [
+            "PUBLIC_REPLY",
+            "ESCALATE"
+        ],
+        "block_dm": true
+    },
+    "instagram": {
+        "allowed_actions": [
+            "PUBLIC_REPLY",
+            "DM",
+            "ESCALATE"
+        ],
+        "block_dm": false
+    },
+    "tiktok": {
+        "allowed_actions": [
+            "PUBLIC_REPLY",
+            "DM",
+            "ESCALATE"
+        ],
+        "block_dm": false
+    },
+    "test": {
+        "allowed_actions": [
+            "PUBLIC_REPLY",
+            "DM",
+            "ESCALATE"
+        ],
+        "block_dm": false
+    }
+}

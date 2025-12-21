@@ -1,0 +1,9 @@
+
+--- VERIFYING PHASE 25 (Automation Eligibility) ---
+[Setup] Workspace: be07ad55-3852-44e5-827d-ae2c6c89b5ab, Plan: FREE, OptIn: false
+
+[Test 1] Default Block
+Result: {"allowed":false,"reasons":["Plan 'Free Tier' does not support automation.","Automation is not enabled in Owner Settings.","Insufficient history: 0/20 approved suggestions."],"constraints":{"max_replies_per_day":5,"allowed_time_window":"09:00-18:00"},"checked_at":"2025-12-21T07:42:50.797Z"}
+Error: Failed: Missing Opt-In Reason
+    at main (D:\Projects\ai-engagement-desktop-client\ingestion-service\scripts\verify_phase25.ts:91:76)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)

@@ -1,0 +1,20 @@
+[
+    {
+        "id": "sp_using_this",
+        "intent": "SOCIAL",
+        "family": "social_usage",
+        "language": "en",
+        "signal": "anyone using this",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "sp_better_than",
+        "intent": "SOCIAL",
+        "family": "social_compare",
+        "language": "en",
+        "signal": "better than the one",
+        "weight": 30,
+        "is_active": true
+    }
+]

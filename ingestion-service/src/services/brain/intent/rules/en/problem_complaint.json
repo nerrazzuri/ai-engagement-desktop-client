@@ -1,0 +1,29 @@
+[
+    {
+        "id": "pc_my_smudges",
+        "intent": "PROBLEM_SOLUTION",
+        "family": "complaint_performance",
+        "language": "en",
+        "signal": "/my .* smudges/",
+        "weight": 20,
+        "is_active": true
+    },
+    {
+        "id": "pc_always_smudges",
+        "intent": "PROBLEM_SOLUTION",
+        "family": "complaint_performance",
+        "language": "en",
+        "signal": "always smudges",
+        "weight": 20,
+        "is_active": true
+    },
+    {
+        "id": "pc_broke",
+        "intent": "PROBLEM_SOLUTION",
+        "family": "complaint_durability",
+        "language": "en",
+        "signal": "/my .* broke/",
+        "weight": 20,
+        "is_active": true
+    }
+]

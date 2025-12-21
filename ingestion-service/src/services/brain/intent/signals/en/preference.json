@@ -1,0 +1,54 @@
+[
+    {
+        "id": "sig_pref_prefer",
+        "signal": "prefer"
+    },
+    {
+        "id": "sig_pref_preference",
+        "signal": "preference"
+    },
+    {
+        "id": "sig_pref_rather",
+        "signal": "rather"
+    },
+    {
+        "id": "sig_pref_better",
+        "signal": "better"
+    },
+    {
+        "id": "sig_pref_wont_buy",
+        "signal": "won't buy"
+    },
+    {
+        "id": "sig_pref_instead",
+        "signal": "instead"
+    },
+    {
+        "id": "sig_pref_too_big",
+        "signal": "too big"
+    },
+    {
+        "id": "sig_pref_too_small",
+        "signal": "too small"
+    },
+    {
+        "id": "sig_pref_too_dark",
+        "signal": "too dark"
+    },
+    {
+        "id": "sig_pref_too_light",
+        "signal": "too light"
+    },
+    {
+        "id": "sig_pref_too_exp",
+        "signal": "too expensive"
+    },
+    {
+        "id": "sig_pref_not_in",
+        "signal": "not in this"
+    },
+    {
+        "id": "sig_pref_perfect_if",
+        "signal": "perfect if"
+    }
+]

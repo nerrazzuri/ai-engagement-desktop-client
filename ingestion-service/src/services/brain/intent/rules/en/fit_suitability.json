@@ -1,0 +1,47 @@
+[
+    {
+        "id": "fs_skin_tone",
+        "intent": "FIT_SUITABILITY",
+        "family": "fit_personal",
+        "language": "en",
+        "signal": "skin tone",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "fs_suit_me",
+        "intent": "FIT_SUITABILITY",
+        "family": "fit_personal",
+        "language": "en",
+        "signal": "suit me",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "fs_too_big",
+        "intent": "FIT_SUITABILITY",
+        "family": "fit_size",
+        "language": "en",
+        "signal": "too big",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "fs_good_choice",
+        "intent": "FIT_SUITABILITY",
+        "family": "fit_evaluation",
+        "language": "en",
+        "signal": "good choice",
+        "weight": 30,
+        "is_active": true
+    },
+    {
+        "id": "fs_birthday_gift",
+        "intent": "FIT_SUITABILITY",
+        "family": "fit_occasion",
+        "language": "en",
+        "signal": "birthday gift",
+        "weight": 40,
+        "is_active": true
+    }
+]

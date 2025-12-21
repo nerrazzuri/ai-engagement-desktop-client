@@ -14,6 +14,9 @@ export interface VideoEvent {
     video_tags: string[];
     timestamp: string; // ISO8601
 
+    // Content context
+    text?: string; // Comment or Caption Text
+
     // Session context
     session_id: string;
     install_id: string;

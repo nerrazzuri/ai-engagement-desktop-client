@@ -1,0 +1,18 @@
+[
+    {
+        "id": "sig_cond_if",
+        "signal": "if"
+    },
+    {
+        "id": "sig_cond_wish",
+        "signal": "wish"
+    },
+    {
+        "id": "sig_cond_would_be",
+        "signal": "would be"
+    },
+    {
+        "id": "sig_cond_unless",
+        "signal": "unless"
+    }
+]

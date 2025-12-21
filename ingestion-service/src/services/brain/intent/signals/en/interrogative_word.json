@@ -1,0 +1,22 @@
+[
+    {
+        "id": "sig_int_w_where",
+        "signal": "where"
+    },
+    {
+        "id": "sig_int_w_what",
+        "signal": "what"
+    },
+    {
+        "id": "sig_int_w_how",
+        "signal": "how"
+    },
+    {
+        "id": "sig_int_w_who",
+        "signal": "who"
+    },
+    {
+        "id": "sig_int_w_which",
+        "signal": "which"
+    }
+]

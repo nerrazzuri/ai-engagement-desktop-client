@@ -1,0 +1,29 @@
+[
+    {
+        "id": "host_stupid",
+        "intent": "HOSTILE",
+        "family": "insult",
+        "language": "en",
+        "signal": "stupid",
+        "weight": 20,
+        "is_active": true
+    },
+    {
+        "id": "host_hate",
+        "intent": "HOSTILE",
+        "family": "insult",
+        "language": "en",
+        "signal": "hate",
+        "weight": 20,
+        "is_active": true
+    },
+    {
+        "id": "host_spam",
+        "intent": "HOSTILE",
+        "family": "spam_accusation",
+        "language": "en",
+        "signal": "scam",
+        "weight": 20,
+        "is_active": true
+    }
+]

@@ -1,0 +1,34 @@
+{
+    "HIGH_INTENT_PURCHASE": {
+        "DECISION": {
+            "id": "reply_high_decision",
+            "text": "That's a great choice! You can check it out here: [LINK]"
+        },
+        "CONSIDERATION": {
+            "id": "reply_high_consideration",
+            "text": "It's definitely worth it! Let us know if you have questions."
+        }
+    },
+    "LATENT_PURCHASE": {
+        "CONSIDERATION": {
+            "id": "reply_latent",
+            "text": "Take your time! We're here if you need anything."
+        }
+    },
+    "POST_PURCHASE_REGRET": {
+        "REGRET": {
+            "id": "reply_regret",
+            "text": "We're so sorry to hear this. Please please send us a DM with your order # so we can make it right."
+        }
+    },
+    "HOSTILE": {
+        "REGRET": {
+            "id": "reply_deescalate",
+            "text": "We apologize for the frustration. Please contact support so we can help."
+        }
+    },
+    "DEFAULT": {
+        "id": "reply_generic",
+        "text": "Thanks for the comment!"
+    }
+}

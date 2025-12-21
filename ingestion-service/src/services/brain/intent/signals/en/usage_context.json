@@ -1,0 +1,30 @@
+[
+    {
+        "id": "sig_usage_daily",
+        "signal": "daily"
+    },
+    {
+        "id": "sig_usage_everyday",
+        "signal": "everyday"
+    },
+    {
+        "id": "sig_usage_routine",
+        "signal": "routine"
+    },
+    {
+        "id": "sig_usage_work",
+        "signal": "work use"
+    },
+    {
+        "id": "sig_usage_lifestyle",
+        "signal": "lifestyle"
+    },
+    {
+        "id": "sig_usage_setup",
+        "signal": "setup"
+    },
+    {
+        "id": "sig_usage_regular",
+        "signal": "regular use"
+    }
+]
