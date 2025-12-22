@@ -2,7 +2,7 @@ version: '3.8'
 
 networks:
   ai_network:
-    name: omnichannel_chatbot_backend_net
+    name: omnichannel-rag-chat_backend_net
     external: true
 
 services:
