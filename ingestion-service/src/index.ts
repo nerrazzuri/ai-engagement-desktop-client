@@ -14,18 +14,24 @@ import { prisma } from './db';
 const app = express();
 const PORT = config.port;
 
-// SQLite Optimization (WAL Mode) for Concurrency
-// Only affects local dev with SQLite
+// Database Optimization (Runtime Hygiene)
 (async () => {
-    try {
-        if (config.env === 'development') { // Guard for dev only
-            await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
-            await prisma.$queryRawUnsafe('PRAGMA synchronous = NORMAL;');
-            await prisma.$queryRawUnsafe('PRAGMA busy_timeout = 10000;');
-            console.log('[DB] WAL Mode & Busy Timeout enabled');
-        }
-    } catch (e) {
-        console.warn('[DB] Failed to set WAL mode (might be Postgres or locked):', e);
+    const dbUrl = config.dbUrl;
+
+    // Hard Fail if missing (Sanity Check)
+    if (!dbUrl) {
+        console.error('[Fatal] DATABASE_URL is not defined.');
+        process.exit(1);
+    }
+
+    if (dbUrl.startsWith('file:')) {
+        console.log('[DB] SQLite detected, applying optimizations...');
+        await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
+        await prisma.$queryRawUnsafe('PRAGMA synchronous = NORMAL;');
+        await prisma.$queryRawUnsafe('PRAGMA busy_timeout = 10000;');
+        console.log('[DB] WAL Mode & Busy Timeout enabled');
+    } else {
+        console.log('[DB] PostgreSQL detected, skipping SQLite pragmas');
     }
 })();
 

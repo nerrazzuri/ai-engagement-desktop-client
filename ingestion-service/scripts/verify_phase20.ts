@@ -5,8 +5,10 @@ const BASE_URL = 'http://localhost:3005';
 
 async function main() {
     console.log('--- VERIFYING PHASE 20 (Owner Controls) ---');
-    // Enable WAL mode for concurrency
-    await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
+    // Enable WAL mode for concurrency (SQLite ONLY)
+    if (process.env.DATABASE_URL?.startsWith('file:')) {
+        await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL;');
+    }
 
 
     // 1. Login
