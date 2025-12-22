@@ -1,5 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// =====================================
+// Prisma schema — Engagement Service
+// ALL TABLES live in schema: engagement
+// =====================================
 
 generator client {
   provider = "prisma-client-js"
@@ -8,233 +10,249 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["engagement"]
 }
 
 model Account {
-  id          String   @id @default(uuid())
-  status      String   @default("ACTIVE") // ACTIVE, SUSPENDED
-  name        String   @default("My Workspace") // Phase 19.7
-  // Phase 24: Product Definition
-  plan_id          String          @default("FREE")
-  onboarding_state String          @default("CREATED")
-  
-  created_at  DateTime @default(now())
+  id                String   @id @default(uuid())
+  status            String   @default("ACTIVE")
+  name              String   @default("My Workspace")
+  plan_id           String   @default("FREE")
+  onboarding_state  String   @default("CREATED")
+  created_at        DateTime @default(now())
 
-  installs    InstallRegistry[]
-  events      EngagementEvent[]
-  memberships WorkspaceMembership[]
-  active_sessions Session[]
-  owner_settings OwnerSettings?
+  installs           InstallRegistry[]
+  events             EngagementEvent[]
+  memberships        WorkspaceMembership[]
+  active_sessions    Session[]
+  owner_settings     OwnerSettings?
 
-  suggestions    Suggestion[]
-  decisions      SuggestionDecision[]
+  suggestions        Suggestion[]
+  decisions          SuggestionDecision[]
+
+  @@schema("engagement")
 }
 
 model Suggestion {
-  id              String   @id @default(uuid())
-  workspace_id    String
-  event_id        String
-  platform        String
-  video_id        String
-  comment_id      String?
-  suggested_text  String
-  strategy        String   // ANSWER, CLARIFY, etc.
-  confidence      Float
-  signals         String   // JSON
-  owner_settings_snapshot String // JSON
-  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED, EDITED, EXPIRED
-  created_at      DateTime @default(now())
-  expires_at      DateTime?
-  // Phase 23: Context & Safety
-  context_type    String?  // OWNED_CONTENT, COMPETITOR_CONTENT, etc.
-  speaker_role    String?  // OWNER, NEUTRAL_HELPER, etc.
-  template_category String? // NEUTRAL_ADVICE, OWNER_PROMOTIONAL, etc.
+  id                        String   @id @default(uuid())
+  workspace_id              String
+  event_id                  String
+  platform                  String
+  video_id                  String
+  comment_id                String?
+  suggested_text            String
+  strategy                  String
+  confidence                Float
+  signals                   String
+  owner_settings_snapshot   String
+  status                    String   @default("PENDING")
+  created_at                DateTime @default(now())
+  expires_at                DateTime?
+  context_type              String?
+  speaker_role              String?
+  template_category         String?
 
-  account         Account          @relation(fields: [workspace_id], references: [id])
-  event           EngagementEvent  @relation(fields: [event_id], references: [id])
-  decisions       SuggestionDecision[]
+  account     Account          @relation(fields: [workspace_id], references: [id])
+  event       EngagementEvent  @relation(fields: [event_id], references: [id])
+  decisions   SuggestionDecision[]
 
-  // Phase 25: Automation Eligibility (Persistence)
-  automation_eligible Boolean? @default(false)
-  automation_reasons  String?  @default("[]") // JSON Array of strings
-  automation_checked_at DateTime?
+  automation_eligible        Boolean? @default(false)
+  automation_reasons         String?  @default("[]")
+  automation_checked_at      DateTime?
+
+  @@schema("engagement")
 }
 
 model SuggestionDecision {
-  id              String   @id @default(uuid())
-  suggestion_id   String
-  workspace_id    String
-  user_id         String
-  decision        String   // APPROVE, REJECT, EDIT
-  final_text      String?
-  reason          String?
-  created_at      DateTime @default(now())
+  id            String   @id @default(uuid())
+  suggestion_id String
+  workspace_id  String
+  user_id       String
+  decision      String
+  final_text    String?
+  reason        String?
+  created_at    DateTime @default(now())
 
-  suggestion      Suggestion @relation(fields: [suggestion_id], references: [id])
-  account         Account    @relation(fields: [workspace_id], references: [id])
-  user            User       @relation(fields: [user_id], references: [id])
+  suggestion  Suggestion @relation(fields: [suggestion_id], references: [id])
+  account     Account    @relation(fields: [workspace_id], references: [id])
+  user        User       @relation(fields: [user_id], references: [id])
+
+  @@schema("engagement")
 }
 
 model OwnerSettings {
-  workspace_id            String   @id
-  mode                    String   @default("OBSERVE_ONLY") // OBSERVE_ONLY, SUGGEST, ASSIST
-  aggressiveness          String   @default("CONSERVATIVE") // CONSERVATIVE, BALANCED, ASSERTIVE
-  enable_intents          String   @default("{}") // JSON: { "purchase": true, "question": true }
-  min_intent_confidence   Float    @default(0.7)
-  platforms_enabled       String   @default("[]") // JSON: ["youtube", "twitter"]
-  max_suggestions_per_day Int      @default(20)
-  automation_opt_in       Boolean  @default(false) // Phase 25
-  max_suggestions_per_video Int    @default(2)
-  cooldown_hours          Int      @default(24)
-  preferred_language      String?
-  tone                    String?
-  created_at              DateTime @default(now())
-  updated_at              DateTime @updatedAt // Used as owner_settings_version
+  workspace_id              String   @id
+  mode                      String   @default("OBSERVE_ONLY")
+  aggressiveness            String   @default("CONSERVATIVE")
+  enable_intents            String   @default("{}")
+  min_intent_confidence     Float    @default(0.7)
+  platforms_enabled         String   @default("[]")
+  max_suggestions_per_day   Int      @default(20)
+  automation_opt_in         Boolean  @default(false)
+  max_suggestions_per_video Int      @default(2)
+  cooldown_hours            Int      @default(24)
+  preferred_language        String?
+  tone                      String?
+  created_at                DateTime @default(now())
+  updated_at                DateTime @updatedAt
 
-  account                 Account  @relation(fields: [workspace_id], references: [id])
+  account Account @relation(fields: [workspace_id], references: [id])
+
+  @@schema("engagement")
 }
 
 model InstallRegistry {
-  id          String   @id @default(uuid())
-  install_id  String   @unique
-  install_secret String? // Phase 19.7 Hashed
-  is_active   Boolean  @default(true) // Kill switch
-  created_at  DateTime @default(now())
-  
-  account_id  String?  // Optional for migration
-  account     Account? @relation(fields: [account_id], references: [id])
+  id             String   @id @default(uuid())
+  install_id     String   @unique
+  install_secret String?
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+
+  account_id String?
+  account    Account? @relation(fields: [account_id], references: [id])
+
+  @@schema("engagement")
 }
 
-// ARCHITECTURE NOTE (Phase 12):
-// This model currently couples 'Immutable Ingest Data' with 'Mutable Queue State' (status).
-// In Phase 13+, this should be split into `IngestEvent` (immutable) and `EngagementItem` (mutable).
-// This coupling is accepted for Phase 12 as a temporary simplification.
 model EngagementEvent {
-  id              String   @id @default(uuid()) // Internal ID
-  external_event_id String? @unique // Phase 28: Strict Contract (Unique from source)
-  dedup_key       String   @unique // Hash(install + platform + video + comment + text)
-  observed_at     DateTime? // Phase 28: From source
-  platform        String
-  target_id       String   @default("unknown") // Phase 19: platform:author_identifier
-  
-  account_id      String?  // Optional for migration
-  account         Account? @relation(fields: [account_id], references: [id])
-  install_id      String?  // Optional for migration
-  
-  video_id        String
-  comment_id      String
-  content_text    String   // Raw captured text
-  metadata        String?  // Phase 17: JSON blob of raw event data (video info, etc.)
-  status          String   // NEW, SUGGESTED, DRAFTED, DONE, IGNORED
-  created_at      DateTime @default(now())
-  
-  sessions        SuggestionSession[]
-  suggestions     Suggestion[]
+  id                 String   @id @default(uuid())
+  external_event_id  String?  @unique
+  dedup_key          String   @unique
+  observed_at        DateTime?
+  platform           String
+  target_id          String   @default("unknown")
+
+  account_id String?
+  account    Account? @relation(fields: [account_id], references: [id])
+  install_id String?
+
+  video_id     String
+  comment_id   String
+  content_text String
+  metadata     String?
+  status       String
+  created_at   DateTime @default(now())
+
+  sessions     SuggestionSession[]
+  suggestions  Suggestion[]
+
+  @@schema("engagement")
 }
 
 model SuggestionSession {
   id              String   @id @default(uuid())
   event_id        String
-  event           EngagementEvent @relation(fields: [event_id], references: [id])
   version         Int      @default(1)
-  input_snapshot  String   // JSON snapshot of context
+  input_snapshot  String
   suggestion_text String
-  brain_meta      String?  // JSON debug info from Brain
+  brain_meta      String?
   created_at      DateTime @default(now())
-  
-  feedback        FeedbackSignal?
+
+  event    EngagementEvent @relation(fields: [event_id], references: [id])
+  feedback FeedbackSignal?
+
+  @@schema("engagement")
 }
 
 model FeedbackSignal {
-  id              String   @id @default(uuid())
-  session_id      String   @unique
-  session         SuggestionSession @relation(fields: [session_id], references: [id])
-  action          String   // COPY, EDIT_COPY, IGNORE, DISMISS
-  final_text      String?  // If edited
-  edit_distance   Int?
-  time_to_action  Int?     // Milliseconds
-  created_at      DateTime @default(now())
-}
-// Phase 19.7: User & Workspace Foundation
-model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password_hash String
-  status        String   @default("ACTIVE") // ACTIVE, SUSPENDED
-  created_at    DateTime @default(now())
+  id             String   @id @default(uuid())
+  session_id     String   @unique
+  action         String
+  final_text     String?
+  edit_distance  Int?
+  time_to_action Int?
+  created_at     DateTime @default(now())
 
-  // Phase 27: Security
+  session SuggestionSession @relation(fields: [session_id], references: [id])
+
+  @@schema("engagement")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password_hash String
+  status         String   @default("ACTIVE")
+  created_at     DateTime @default(now())
+
   login_attempts Int      @default(0)
   locked_until   DateTime?
   last_login_at  DateTime?
 
-  memberships   WorkspaceMembership[]
-  sessions      Session[]
-  decisions     SuggestionDecision[]
+  memberships WorkspaceMembership[]
+  sessions    Session[]
+  decisions   SuggestionDecision[]
+
+  @@schema("engagement")
 }
 
 model AdminUser {
   id            String   @id @default(uuid())
   email         String   @unique
   password_hash String
-  role          String   @default("SUPERADMIN") // SUPERADMIN, SUPPORT
+  role          String   @default("SUPERADMIN")
   created_at    DateTime @default(now())
-  
-  // No relation to Workspaces directly. Admin is above workspaces.
-  sessions      AdminSession[]
+
+  sessions AdminSession[]
+
+  @@schema("engagement")
 }
 
 model AdminSession {
-  id            String   @id @default(uuid()) // The Admin Session Token
-  admin_id      String
-  expires_at    DateTime
-  created_at    DateTime @default(now())
+  id         String   @id @default(uuid())
+  admin_id  String
+  expires_at DateTime
+  created_at DateTime @default(now())
 
-  admin         AdminUser @relation(fields: [admin_id], references: [id])
+  admin AdminUser @relation(fields: [admin_id], references: [id])
+
+  @@schema("engagement")
 }
 
 model AuditLog {
   id             String   @id @default(uuid())
   actor_id       String
-  actor_type     String   // USER, ADMIN, SYSTEM
+  actor_type     String
   action         String
   resource       String
   resource_id    String?
-  workspace_id   String?  // Nullable (Admin Global Actions)
-  meta           String?  // JSON
+  workspace_id   String?
+  meta           String?
   ip             String?
-  correlation_id String?  // Phase 27: Traceability
+  correlation_id String?
   created_at     DateTime @default(now())
 
-  // No FK relations to avoid deletion cascades or complexity. 
-  // It's an immutable log.
   @@index([workspace_id, created_at])
   @@index([actor_id, created_at])
   @@index([correlation_id])
+  @@schema("engagement")
 }
 
 model WorkspaceMembership {
   id           String   @id @default(uuid())
   workspace_id String
   user_id      String
-  role         String   @default("MEMBER") // OWNER, ADMIN, MEMBER
-  status       String   @default("ACTIVE") // ACTIVE, INVITED, REMOVED
+  role         String   @default("MEMBER")
+  status       String   @default("ACTIVE")
   created_at   DateTime @default(now())
 
-  account      Account  @relation(fields: [workspace_id], references: [id])
-  user         User     @relation(fields: [user_id], references: [id])
+  account Account @relation(fields: [workspace_id], references: [id])
+  user    User    @relation(fields: [user_id], references: [id])
 
   @@unique([workspace_id, user_id])
+  @@schema("engagement")
 }
 
 model Session {
-  id                  String   @id @default(uuid()) // The Bearer Token
+  id                  String   @id @default(uuid())
   user_id             String
   active_workspace_id String?
   expires_at          DateTime
   last_seen_at        DateTime @default(now())
   created_at          DateTime @default(now())
 
-  user                User     @relation(fields: [user_id], references: [id])
-  active_workspace    Account? @relation(fields: [active_workspace_id], references: [id])
+  user             User     @relation(fields: [user_id], references: [id])
+  active_workspace Account? @relation(fields: [active_workspace_id], references: [id])
+
+  @@schema("engagement")
 }
