@@ -61,6 +61,8 @@ model Suggestion {
   automation_reasons         String?  @default("[]")
   automation_checked_at      DateTime?
 
+  @@index([workspace_id])
+  @@index([event_id])
   @@schema("engagement")
 }
 
@@ -99,6 +101,9 @@ model OwnerSettings {
 
   account Account @relation(fields: [workspace_id], references: [id])
 
+  @@index([workspace_id])
+  @@index([user_id])
+  @@index([suggestion_id])
   @@schema("engagement")
 }
 
@@ -112,6 +117,7 @@ model InstallRegistry {
   account_id String?
   account    Account? @relation(fields: [account_id], references: [id])
 
+  @@index([account_id])
   @@schema("engagement")
 }
 
@@ -137,6 +143,9 @@ model EngagementEvent {
   sessions     SuggestionSession[]
   suggestions  Suggestion[]
 
+  @@index([account_id])
+  @@index([install_id])
+  @@index([created_at])
   @@schema("engagement")
 }
 
@@ -240,6 +249,8 @@ model WorkspaceMembership {
   account Account @relation(fields: [workspace_id], references: [id])
   user    User    @relation(fields: [user_id], references: [id])
 
+  @@index([workspace_id])
+  @@index([user_id])
   @@unique([workspace_id, user_id])
   @@schema("engagement")
 }
@@ -255,5 +266,7 @@ model Session {
   user             User     @relation(fields: [user_id], references: [id])
   active_workspace Account? @relation(fields: [active_workspace_id], references: [id])
 
+  @@index([user_id])
+  @@index([active_workspace_id])
   @@schema("engagement")
 }
