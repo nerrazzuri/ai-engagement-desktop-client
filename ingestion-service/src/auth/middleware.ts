@@ -8,6 +8,11 @@ const VALID_INSTALLS = new Map<string, string>(); // install_id -> token
 VALID_INSTALLS.set('test-install-id', 'test-token');
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    // Dev Admin Bypass (Testing)
+    if (process.env.NODE_ENV === 'development' && req.headers['x-dev-admin'] === '1') {
+        return next();
+    }
+
     const installId = req.headers['x-install-id'] as string;
     const token = req.headers['authorization']?.replace('Bearer ', '');
 
