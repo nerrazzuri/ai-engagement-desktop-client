@@ -14,14 +14,13 @@ services:
       - "3005:3005"
     volumes:
       - ./data:/app/data
-      - ./src:/app/src
       - ./scripts:/app/scripts
-      - ./prisma:/app/prisma # Enable schema updates
     networks:
       - ai_network
     environment:
       - PORT=3005
-      - DATABASE_URL=file:/app/data/dev.db
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://ai_engagement_user:ai_engagement%40123@postgresql:5432/ai_backend_db?schema=engagement
       - AI_CORE_BASE_URL=http://ai-core:8000
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - AI_CORE_INTERNAL_SECRET=${AI_CORE_INTERNAL_SECRET}
