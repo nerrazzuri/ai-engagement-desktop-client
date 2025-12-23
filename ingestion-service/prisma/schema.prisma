@@ -102,8 +102,6 @@ model OwnerSettings {
   account Account @relation(fields: [workspace_id], references: [id])
 
   @@index([workspace_id])
-  @@index([user_id])
-  @@index([suggestion_id])
   @@schema("engagement")
 }
 
