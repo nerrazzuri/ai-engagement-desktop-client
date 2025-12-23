@@ -4,6 +4,7 @@ import { DesktopCaptureEventSchema, EngagementEventSchema } from '../schemas/des
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
 import { prisma } from '../db';
+import { requireAdmin } from '../auth/admin_middleware';
 
 const router = Router();
 // const prisma = new PrismaClient(); // Removed local instance
@@ -501,11 +502,11 @@ router.post('/admin/kill-switch', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/admin/queue', async (req: Request, res: Response) => {
-    if (!isAdmin(req)) { // Gap D: Protect Admin
-        res.status(401).json({ error: 'Unauthorized' });
-        return;
-    }
+router.get('/admin/queue', requireAdmin, async (req: Request, res: Response) => {
+    // if (!isAdmin(req)) { // Gap D: Protect Admin
+    //     res.status(401).json({ error: 'Unauthorized' });
+    //     return;
+    // }
     const events = await prisma.engagementEvent.findMany({
         orderBy: { created_at: 'desc' },
         take: 50,
