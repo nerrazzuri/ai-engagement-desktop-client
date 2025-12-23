@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { config } from '../config';
 
 // In-memory store for rate limiting (would be Redis in prod)
 const RATE_LIMITS = new Map<string, { count: number, resetAt: number }>();
@@ -8,6 +9,13 @@ const VALID_INSTALLS = new Map<string, string>(); // install_id -> token
 VALID_INSTALLS.set('test-install-id', 'test-token');
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    // Dev Admin Bypass (Testing)
+    // Fix: Use config.env which handles defaults, or check process.env explicitly if config not trusted.
+    // Ensure it runs BEFORE any header checks.
+    if (config.env === 'development' && req.headers['x-dev-admin'] === '1') {
+        return next();
+    }
+
     const installId = req.headers['x-install-id'] as string;
     const token = req.headers['authorization']?.replace('Bearer ', '');
 

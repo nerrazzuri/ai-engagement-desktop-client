@@ -8,6 +8,15 @@ const router = Router();
 
 // Middleware: Internal Secret & Headers
 const requireInternalAuth = async (req: Request, res: Response, next: Function) => {
+    // Dev Admin Bypass (Testing)
+    if (process.env.NODE_ENV === 'development' && req.headers['x-dev-admin'] === '1') {
+        console.warn(`[IngestBridge] Bypass Activated for ${req.path}`);
+        // Mock required IDs to prevent crash in controller
+        (req as any).checkedInstallId = 'dev-install-bypass';
+        (req as any).checkedAccountId = 'dev-account-bypass';
+        return next();
+    }
+
     const secret = req.headers['x-internal-secret'];
     const tenantId = req.headers['x-tenant-id'] as string; // Account ID? Or Tenant Context? 
     // Plan said "X-Tenant-Id" and "X-Install-Id".
