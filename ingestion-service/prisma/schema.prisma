@@ -136,6 +136,7 @@ model EngagementEvent {
   content_text String
   metadata     String?
   status       String
+  failure_reason String? // Phase 28.2: Lossless Ingestion Reason
   created_at   DateTime @default(now())
 
   sessions     SuggestionSession[]

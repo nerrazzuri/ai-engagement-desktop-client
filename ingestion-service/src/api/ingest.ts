@@ -20,108 +20,182 @@ function generateDedupKey(platform: string, videoId: string, commentId: string):
         .digest('hex');
 }
 
-// POST /events - Ingest Raw Event
+// POST /events - Ingest Raw Event (Write-First Architecture)
+// POST /events - Ingest Raw Event (Write-First Architecture)
 router.post('/events', async (req: Request, res: Response) => {
     const payload = req.body;
     const installId = req.headers['x-install-id'] as string;
     const installSecret = req.headers['x-install-secret'] as string;
 
-    // 1. Basic Transport Validation (Sync)
-    if (!payload || typeof payload !== "object") {
-        res.status(400).json({
-            status: "error",
-            message: 'Invalid payload'
-        });
-        return;
-    }
-
+    // 1. Basic Transport Validation (Sync) -> Only Malformed requests are rejected
     if (!installId) {
+        // We arguably could persist this too if we really wanted "Lossless", 
+        // but without install_id we can't key it easily. 
+        // User said: "Auth failure affects status, not persistence". 
+        // Install ID is Identity, not Auth. Missing Identity is structural failure.
         res.status(400).json({ status: 'error', message: 'Missing x-install-id' });
         return;
     }
 
-    // 2. Strict Ownership & Validations (Sync)
+    const parseResult = DesktopCaptureEventSchema.safeParse(payload);
+    if (!parseResult.success) {
+        res.status(400).json({
+            status: "error",
+            code: 'INVALID_PAYLOAD',
+            details: parseResult.error.issues
+        });
+        return;
+    }
+    const eventData = parseResult.data;
+
+    // 2. Resolve Install & Account (Non-Blocking)
+    let accountId: string | null = null;
+    let initialStatus = 'RECEIVED';
+    let failureReason: string | null = null;
+
     try {
         const install = await prisma.installRegistry.findUnique({
             where: { install_id: installId },
-            include: { account: true }
-        } as any) as any;
+            select: { account_id: true, is_active: true, install_secret: true }
+        });
 
-        // REJECT: Install not found
         if (!install) {
-            console.warn(`[Ingest] Blocked: Unknown Install ID ${installId}`);
-            res.status(403).json({ status: 'error', code: 'INSTALL_NOT_FOUND' });
-            return;
-        }
-
-        // Phase 19.7 Hardening: Check Secret if present in DB
-        if (install.install_secret) {
-            if (!installSecret || installSecret !== install.install_secret) {
-                console.warn(`[Ingest] Blocked: Invalid Secret for Install ID ${installId}`);
-                res.status(403).json({ status: 'error', code: 'INVALID_INSTALL_SECRET' });
-                return;
+            initialStatus = 'ORPHANED';
+            failureReason = 'Install not found';
+        } else {
+            // Check Secret (Auth)
+            if (install.install_secret && install.install_secret !== installSecret) {
+                initialStatus = 'AUTH_FAILED'; // Auth Failure
+                failureReason = 'Install Secret mismatch';
+                accountId = install.account_id; // Still bind if we can
+            }
+            // Check Kill Switch
+            else if (!install.is_active) {
+                initialStatus = 'BLOCKED_INSTALL'; // Logic Failure
+                failureReason = 'Install Inactive';
+                accountId = install.account_id;
+            }
+            // Check Orphaned (No Account)
+            else if (!install.account_id) {
+                initialStatus = 'ORPHANED';
+                failureReason = 'No Account Linked';
+            }
+            // Valid Binding
+            else {
+                accountId = install.account_id;
+                // Status remains RECEIVED
             }
         }
+    } catch (err: any) {
+        console.warn(`[Ingest] Install resolution warning:`, err);
+        initialStatus = 'ORPHANED';
+        failureReason = `Resolution Error: ${err.message}`;
+    }
 
-        // REJECT: Install inactive (Kill Switch)
-        if (!install.is_active) {
-            console.warn(`[Ingest] Blocked: Inactive Install ID ${installId}`);
-            res.status(403).json({ status: 'error', code: 'INSTALL_INACTIVE' });
-            return;
-        }
+    // 3. DB Write (ALWAYS Persist)
+    const dedupKey = generateDedupKey(eventData.platform, eventData.video.video_id, eventData.comment.comment_id);
+    let persistedEvent;
 
-        // REJECT: Orphaned Install (Strict Phase 19.5 Enforcement)
-        if (!install.account_id || !install.account) {
-            console.warn(`[Ingest] Blocked: Orphaned Install ID ${installId} (No Account)`);
-            res.status(403).json({ status: 'error', code: 'INSTALL_ORPHANED' });
-            return;
-        }
+    try {
+        persistedEvent = await prisma.engagementEvent.upsert({
+            where: { dedup_key: dedupKey },
+            update: {
+                // Idempotent: If it exists, we don't change it.
+            },
+            create: {
+                dedup_key: dedupKey,
+                platform: eventData.platform,
+                video_id: eventData.video.video_id,
+                comment_id: eventData.comment.comment_id,
+                content_text: eventData.comment.text,
+                metadata: JSON.stringify(eventData),
+                status: initialStatus,
+                failure_reason: failureReason,
+                install_id: installId,
+                account_id: accountId,
+                target_id: `${eventData.platform}:${eventData.comment.author_name || 'unknown'}`
+            }
+        });
 
-        // REJECT: Suspended Account
-        if (install.account.status !== 'ACTIVE') {
-            console.warn(`[Ingest] Blocked: Suspended Account ${install.account_id} for Install ${installId}`);
-            res.status(403).json({ status: 'error', code: 'ACCOUNT_SUSPENDED' });
-            return;
-        }
+        const eventId = persistedEvent.id;
 
-        const accountId = install.account_id;
+        // 4. Respond Immediately
+        // Log event_id as first-class correlation
+        console.log(`[Ingest][${eventId}] Accepted. Status: ${initialStatus}`);
 
-        // 3. Acknowledge Receipt
         res.status(202).json({
-            status: "accepted",
-            message: "Event accepted"
+            status: 'accepted',
+            event_id: eventId,
+            ingest_status: initialStatus
         });
 
-        // 4. Process Asynchronously (Detached)
-        processEventBackground(payload, installId, accountId).catch(err => {
-            console.error('[Ingest] Background Processing Failed:', err);
-        });
+        // 5. Async Processing (Fire & Forget)
+        if (initialStatus === 'RECEIVED') {
+            processAsyncIngest(eventId, eventData).catch(err => {
+                console.error(`[Ingest][${eventId}] Async Error:`, err);
+            });
+        }
 
-    } catch (err) {
-        console.error('[Ingest] Setup Error:', err);
-        res.status(500).json({ status: 'error' });
+    } catch (writeErr) {
+        console.error('[Ingest] DB Write Failed:', writeErr);
+        res.status(500).json({ status: 'error', code: 'DB_WRITE_FAILED' });
+        return;
     }
 });
 
-// Helper: Background Processor
-async function processEventBackground(rawPayload: any, installId: string, accountId: string) {
-    try {
-        // Validation (Already validated Install/Account in sync path)
-        const parseResult = DesktopCaptureEventSchema.safeParse(rawPayload);
-        if (!parseResult.success) {
-            console.warn(`[Validation] Schema check failed for ${installId}:`, parseResult.error.issues);
-            return;
+// Helper: Async Processor (Post-Ingest Logic)
+async function processAsyncIngest(eventId: string, rawData: any) {
+    // 1. Atomic Status Transition ("Claim" the event)
+    // Only process if status is RECEIVED (or ORPHANED if we supported retry, but keeping simple for now)
+    // We update to 'PROCESSING' to lock it.
+
+    // Note: upsert returns the object. We need to fetch/update atomically.
+    // Prisma updateMany returns count.
+
+    const updateResult = await prisma.engagementEvent.updateMany({
+        where: {
+            id: eventId,
+            status: 'RECEIVED'
+        },
+        data: {
+            status: 'PROCESSING'
         }
+    });
 
-        const event = parseResult.data;
+    if (updateResult.count === 0) {
+        console.log(`[Async][${eventId}] Skipped (Not RECEIVED or locked)`);
+        return;
+    }
 
-        // Phase 24: Plan Limit Enforcement (Daily Events)
-        const { PlanEnforcer } = require('../services/product/plan_enforcer');
+    // From here on, we own the event.
+    // Fetch fresh to get account_id (safely)
+    const eventRecord = await prisma.engagementEvent.findUnique({ where: { id: eventId } });
+    if (!eventRecord || !eventRecord.account_id) {
+        // Should not happen if it was RECEIVED, but safeguard.
+        console.warn(`[Async][${eventId}] Abort: Missing Record or Account ID`);
+        return;
+    }
+    const accountId = eventRecord.account_id;
 
-        // 1. Calculate Usage
+    // 2. Account Health Check
+    const account = await prisma.account.findUnique({ where: { id: accountId } });
+    if (!account || account.status !== 'ACTIVE') {
+        console.warn(`[Async][${eventId}] Blocked: Suspended Account ${accountId}`);
+        await prisma.engagementEvent.update({
+            where: { id: eventId },
+            data: {
+                status: 'BLOCKED_ACCOUNT',
+                failure_reason: 'Account Suspended or Missing'
+            }
+        });
+        return;
+    }
+
+    // 3. Plan Limits (Phase 24)
+    const { PlanEnforcer } = require('../services/product/plan_enforcer');
+    try {
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
-
         const dailyCount = await prisma.engagementEvent.count({
             where: {
                 account_id: accountId,
@@ -129,53 +203,30 @@ async function processEventBackground(rawPayload: any, installId: string, accoun
             }
         });
 
-        // 2. Check Limit (Throws if exceeded)
-        try {
-            await PlanEnforcer.checkLimit(accountId, 'events_per_day', dailyCount);
-        } catch (limitErr: any) {
-            console.warn(`[Ingest] Plan Limit Exceeded for ${accountId}: ${limitErr.message}`);
-            // We store it as IGNORED/BLOCKED event? Or just drop?
-            // "Hard Clamps Only" -> Ideally drop or reject.
-            // But we already returned 202 Accepted.
-            // So we just stop processing.
-            return;
-        }
-
-        // Normalize & Deduplicate
-        const dedupKey = generateDedupKey(event.platform, event.video.video_id, event.comment.comment_id);
-
-        const engagementEvent = await prisma.engagementEvent.upsert({
-            where: { dedup_key: dedupKey },
-            update: {
-                // Determine if we update metadata?
-            },
-            create: {
-                dedup_key: dedupKey,
-                platform: event.platform,
-                target_id: `${event.platform}:${event.comment.author_name || event.comment.author_id || 'unknown'}`,
-                video_id: event.video.video_id,
-                comment_id: event.comment.comment_id,
-                content_text: event.comment.text,
-                metadata: JSON.stringify(event),
-                status: 'NEW',
-                // Phase 19.5: Ownership
-                install_id: installId,
-                account_id: accountId
-            } as any
+        await PlanEnforcer.checkLimit(accountId, 'events_per_day', dailyCount);
+    } catch (limitErr: any) {
+        console.warn(`[Async][${eventId}] Limit Exceeded: ${limitErr.message}`);
+        await prisma.engagementEvent.update({
+            where: { id: eventId },
+            data: {
+                status: 'BLOCKED_LIMIT',
+                failure_reason: limitErr.message
+            }
         });
-
-        console.log(`[Ingest] Event persisted: ${engagementEvent.id} (Dedup: ${dedupKey}, Account: ${accountId})`);
-
-        // Phase 24: Onboarding Trigger
-        const { OnboardingService, OnboardingState } = require('../services/product/onboarding_service');
-        await OnboardingService.advance(accountId, OnboardingState.FIRST_EVENT_INGESTED);
-
-        // Phase 21: Auto-Suggestion
-        await triggerAutoSuggest(engagementEvent, accountId, installId, event);
-
-    } catch (err) {
-        console.error('[Ingest] Logic Error:', err);
+        return;
     }
+
+    // 4. Onboarding
+    const { OnboardingService, OnboardingState } = require('../services/product/onboarding_service');
+    await OnboardingService.advance(accountId, OnboardingState.FIRST_EVENT_INGESTED);
+
+    // 5. AI Trigger
+    await triggerAutoSuggest(eventRecord, accountId, eventRecord.install_id!, rawData);
+
+    await prisma.engagementEvent.update({
+        where: { id: eventId },
+        data: { status: 'PROCESSED' }
+    });
 }
 
 // Helper: Auto-Suggest Pipeline (Phase 21)
@@ -479,17 +530,7 @@ router.post('/feedback', async (req: Request, res: Response) => {
 // Phase 12.6 Admin Controls
 // ==========================================
 
-// Helper: Gap D - Admin Auth
-function isAdmin(req: Request): boolean {
-    const secret = process.env.AI_CORE_INTERNAL_SECRET || 'dev_secret';
-    return req.headers['x-admin-key'] === secret;
-}
-
-router.post('/admin/kill-switch', async (req: Request, res: Response) => {
-    if (!isAdmin(req)) { // Gap D: Protect Admin
-        res.status(401).json({ error: 'Unauthorized' });
-        return;
-    }
+router.post('/admin/kill-switch', requireAdmin, async (req: Request, res: Response) => {
     const { install_id, set_active } = req.body;
     try {
         await prisma.installRegistry.update({
@@ -502,15 +543,23 @@ router.post('/admin/kill-switch', async (req: Request, res: Response) => {
     }
 });
 
+
 router.get('/admin/queue', requireAdmin, async (req: Request, res: Response) => {
-    // if (!isAdmin(req)) { // Gap D: Protect Admin
-    //     res.status(401).json({ error: 'Unauthorized' });
-    //     return;
-    // }
+    // Optional filters
+    const { status, install_id } = req.query;
+
+    const where: any = {};
+    if (status) where.status = status;
+    if (install_id) where.install_id = install_id;
+
     const events = await prisma.engagementEvent.findMany({
+        where,
         orderBy: { created_at: 'desc' },
-        take: 50,
-        include: { sessions: { include: { feedback: true } } }
+        take: 100, // Increased visibility
+        include: {
+            sessions: { include: { feedback: true } },
+            account: { select: { name: true, status: true } } // Helpful context
+        }
     });
     res.json(events);
 });
