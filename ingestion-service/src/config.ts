@@ -34,5 +34,6 @@ export const config = {
     internalSecret: process.env.AI_ENGAGEMENT_INTERNAL_SECRET || 'dev_secret_engagement', // For own internal routes
     logLevel: process.env.LOG_LEVEL || 'info',
     // Phase 27: Security Config
-    bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '10', 10)
+    bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '10', 10),
+    openaiApiKey: process.env.OPENAI_API_KEY
 };

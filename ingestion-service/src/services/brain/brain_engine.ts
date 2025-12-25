@@ -273,12 +273,15 @@ export const BrainEngine = {
             // 4. Validation & Parsing
             let parsed;
             try {
-                parsed = JSON.parse(llmResponse.text);
+                // Sanitize: formatting sometimes includes markdown blocks despite system prompt
+                const cleanText = llmResponse.text.replace(/```json/g, '').replace(/```/g, '').trim();
+                parsed = JSON.parse(cleanText);
+
                 // Basic Schema Check (Zod ideally, manual for now)
                 if (!parsed.suggested_text || !parsed.strategy) throw new Error("Invalid structure");
             } catch (e) {
-                console.error('[Brain] Invalid JSON from LLM:', e);
-                throw new Error("LLM JSON Parse Error");
+                console.error('[Brain] Invalid JSON from LLM:', e, 'Raw:', llmResponse.text);
+                throw new Error(`LLM JSON Parse Error: ${(e as any).message}`);
             }
 
             // Structured Logging

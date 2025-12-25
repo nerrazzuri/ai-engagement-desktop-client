@@ -3,13 +3,14 @@ import { LLMProvider, MockProvider } from '../../llm/provider';
 import { OpenAIProvider } from '../../llm/openai';
 import { RagClient, MockRagClient } from '../../rag/rag_client';
 import { BrainResponse } from '../types';
+import { config } from '../../../config';
 
 // ==========================================
 // Phase 17: Runtime Concerns
 // ==========================================
 
 // 1. Providers
-const apiKey = process.env.OPENAI_API_KEY;
+const apiKey = config.openaiApiKey;
 export const llmProvider: LLMProvider = (apiKey && apiKey.startsWith('sk-'))
     ? new OpenAIProvider(apiKey)
     : new MockProvider();
