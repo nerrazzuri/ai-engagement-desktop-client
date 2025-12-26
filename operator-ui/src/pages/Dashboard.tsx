@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Client } from '../lib/api';
-import { BarChart3, CheckCircle, MessageSquare, AlertCircle } from 'lucide-react';
+import { CheckCircle, MessageSquare, AlertCircle } from 'lucide-react';
 
 export function Dashboard() {
     const [stats, setStats] = useState<any>(null);

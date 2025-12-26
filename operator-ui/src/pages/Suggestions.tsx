@@ -1,8 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Client } from '../lib/api';
 import { SuggestionDetail } from '../components/SuggestionDetail';
-import { Filter } from 'lucide-react';
 
 export function Suggestions() {
     const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -26,7 +25,7 @@ export function Suggestions() {
         loadData();
     }, [filter]);
 
-    const selectedCard = suggestions.find(s => s.id === selectedId);
+    // const selectedCard = suggestions.find(s => s.id === selectedId);
 
     // Fetch full detail when selected (to get explanation)
     const [detailData, setDetailData] = useState<any>(null);

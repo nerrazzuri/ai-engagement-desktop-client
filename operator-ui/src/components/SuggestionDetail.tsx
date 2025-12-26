@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Client } from '../lib/api';
-import { X, Copy, ExternalLink, Check, ThumbsDown } from 'lucide-react';
+import { X, Copy, ExternalLink, Check } from 'lucide-react';
 
 interface Props {
     suggestion: any;

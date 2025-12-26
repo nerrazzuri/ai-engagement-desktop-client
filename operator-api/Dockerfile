@@ -1,17 +1,35 @@
-FROM node:20-bullseye
+# =========================
+# Build stage
+# =========================
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Install deps
 COPY package*.json ./
 RUN npm ci
 
-COPY prisma ./prisma/
+# Prisma
+COPY prisma ./prisma
 RUN npx prisma generate
 
-COPY . .
-
+# Build TS
+COPY tsconfig.json ./
+COPY src ./src
 RUN npm run build
 
-EXPOSE 3001
+# =========================
+# Runtime stage
+# =========================
+FROM node:20-alpine
 
-CMD ["npm", "run", "start"]
+WORKDIR /app
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
+
+ENV NODE_ENV=production
+EXPOSE 4000
+
+CMD ["node", "dist/index.js"]

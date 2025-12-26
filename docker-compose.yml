@@ -8,9 +8,9 @@ networks:
 services:
   # 1. Ingestion Service (Core Logic)
   ai-engagement:
-    build: 
+    build:
       context: ./ingestion-service
-    container_name: ai-engagement
+    container_name: ai-engagement-ingestion
     restart: unless-stopped
     ports:
       - "3005:3005"

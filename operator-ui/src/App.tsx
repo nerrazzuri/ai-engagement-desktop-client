@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { Layout } from './components/Layout';
@@ -8,9 +8,7 @@ import { Suggestions } from './pages/Suggestions';
 import { Settings } from './pages/Settings';
 
 // Placeholder components until created
-const DashboardPlaceholder = () => <div className="p-8">Dashboard Loading...</div>;
-const SuggestionsPlaceholder = () => <div className="p-8">Suggestions Loading...</div>;
-const SettingsPlaceholder = () => <div className="p-8">Settings Loading...</div>;
+
 
 function App() {
     return (
