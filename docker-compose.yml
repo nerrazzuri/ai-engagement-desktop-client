@@ -1,0 +1,56 @@
+version: '3.8'
+
+networks:
+  ai_network:
+    name: omnichannel-rag-chat_backend_net
+    external: true
+
+services:
+  # 1. Ingestion Service (Core Logic)
+  ai-engagement:
+    build: 
+      context: ./ingestion-service
+    container_name: ai-engagement
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./ingestion-service/data:/app/data
+    networks:
+      - ai_network
+    environment:
+      - PORT=3005
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://ai_engagement_user:ai_engagement%40123@postgresql:5432/ai_backend_db?schema=engagement
+      - AI_CORE_BASE_URL=http://ai-core:8000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AI_CORE_INTERNAL_SECRET=${AI_CORE_INTERNAL_SECRET}
+
+  # 2. Operator API (Backend for Operator UI)
+  operator-api:
+    build:
+      context: ./operator-api
+    container_name: operator-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    networks:
+      - ai_network
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://ai_engagement_user:ai_engagement%40123@postgresql:5432/ai_backend_db?schema=engagement
+      - JWT_SECRET=dev_secret_operator_key_123
+
+  # 3. Operator UI (Frontend)
+  operator-ui:
+    build:
+      context: ./operator-ui
+    container_name: operator-ui
+    restart: unless-stopped
+    ports:
+      - "5173:80" # Map host 5173 to container 80 (Nginx)
+    networks:
+      - ai_network
+    depends_on:
+      - operator-api
